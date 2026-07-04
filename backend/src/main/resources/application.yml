@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: distributed-job-scheduler
+  datasource:
+    url: jdbc:postgresql://localhost:5432/distributed_scheduler
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+security:
+  jwt:
+    secret: 9a4f2c8d3e7b1a5c6d8e7f9a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e1f3a5b7c
+    expiration: 86400000 # 24 hours
+
+llm:
+  api-key: ${LLM_API_KEY:}
+  base-url: ${LLM_BASE_URL:https://api.openai.com/v1}
+  model: ${LLM_MODEL:gpt-4o-mini}
+
+scheduler:
+  watchdog-interval-ms: ${SCHEDULER_WATCHDOG_INTERVAL_MS:10000}
+  worker:
+    enabled: ${SCHEDULER_WORKER_ENABLED:true}
+    heartbeat-interval-ms: ${SCHEDULER_WORKER_HEARTBEAT_INTERVAL_MS:5000}
+    watchdog-interval-ms: ${SCHEDULER_WORKER_WATCHDOG_INTERVAL_MS:10000}
+    stale-timeout-ms: ${SCHEDULER_WORKER_STALE_TIMEOUT_MS:30000}
+    claim-batch-size: ${SCHEDULER_WORKER_CLAIM_BATCH_SIZE:10}
+    poll-interval-ms: ${SCHEDULER_WORKER_POLL_INTERVAL_MS:3000}

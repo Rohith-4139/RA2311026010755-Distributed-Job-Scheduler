@@ -1,0 +1,27 @@
+# PostgreSQL
+postgresql/
+test_pg.zip
+
+# Maven
+maven/
+maven.zip
+
+# Java
+target/
+*.class
+
+# React
+node_modules/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
