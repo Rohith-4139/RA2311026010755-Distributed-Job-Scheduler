@@ -10,7 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface WorkerHeartbeatRepository extends JpaRepository<WorkerHeartbeat, Long> {
-    Optional<WorkerHeartbeat> findByWorkerId(String workerId);
+    List<WorkerHeartbeat> findByWorkerId(String workerId);
+    Optional<WorkerHeartbeat> findFirstByWorkerIdOrderByLastPingDesc(String workerId);
     void deleteByWorkerId(String workerId);
     List<WorkerHeartbeat> findByLastPingBefore(LocalDateTime threshold);
 }

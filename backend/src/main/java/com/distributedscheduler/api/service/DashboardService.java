@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,7 +86,9 @@ public class DashboardService {
     public List<WorkerStatusDto> getWorkerStatuses() {
         List<Worker> workers = workerRepository.findAll();
         return workers.stream().map(worker -> {
-            WorkerHeartbeat hb = heartbeatRepository.findByWorkerId(worker.getId()).orElse(null);
+            WorkerHeartbeat hb = heartbeatRepository.findByWorkerId(worker.getId()).stream()
+                    .max(Comparator.comparing(WorkerHeartbeat::getLastPing))
+                    .orElse(null);
             long active = jobExecutionRepository.findByWorkerIdAndStatus(worker.getId(), "RUNNING").size();
             return WorkerStatusDto.builder()
                     .id(worker.getId())

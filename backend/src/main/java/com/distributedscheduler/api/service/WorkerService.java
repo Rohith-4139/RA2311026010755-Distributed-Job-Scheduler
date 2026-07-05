@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,13 +57,22 @@ public class WorkerService {
         }
         worker = workerRepository.save(worker);
 
-        WorkerHeartbeat heartbeat = heartbeatRepository.findByWorkerId(id).orElse(null);
-        if (heartbeat == null) {
+        List<WorkerHeartbeat> heartbeats = heartbeatRepository.findByWorkerId(id);
+        WorkerHeartbeat heartbeat;
+        if (heartbeats.isEmpty()) {
             heartbeat = WorkerHeartbeat.builder()
                     .worker(worker)
                     .lastPing(LocalDateTime.now())
                     .build();
         } else {
+            heartbeat = heartbeats.stream()
+                    .max(Comparator.comparing(WorkerHeartbeat::getLastPing))
+                    .orElseThrow();
+            if (heartbeats.size() > 1) {
+                heartbeats.remove(heartbeat);
+                heartbeatRepository.deleteAll(heartbeats);
+            }
+            heartbeat.setWorker(worker);
             heartbeat.setLastPing(LocalDateTime.now());
         }
         heartbeatRepository.save(heartbeat);
@@ -73,8 +83,19 @@ public class WorkerService {
 
     @Transactional
     public void pingHeartbeat(String workerId) {
-        WorkerHeartbeat heartbeat = heartbeatRepository.findByWorkerId(workerId)
-                .orElseThrow(() -> new IllegalArgumentException("Worker not registered"));
+        List<WorkerHeartbeat> heartbeats = heartbeatRepository.findByWorkerId(workerId);
+        if (heartbeats.isEmpty()) {
+            throw new IllegalArgumentException("Worker not registered");
+        }
+
+        WorkerHeartbeat heartbeat = heartbeats.stream()
+                .max(Comparator.comparing(WorkerHeartbeat::getLastPing))
+                .orElseThrow();
+        if (heartbeats.size() > 1) {
+            heartbeats.remove(heartbeat);
+            heartbeatRepository.deleteAll(heartbeats);
+        }
+
         heartbeat.setLastPing(LocalDateTime.now());
         heartbeatRepository.save(heartbeat);
 

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "worker_heartbeats", indexes = {
     @Index(name = "idx_worker_heartbeats_worker_id", columnList = "worker_id")
+}, uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"worker_id"})
 })
 @Data
 @NoArgsConstructor
@@ -18,7 +20,7 @@ public class WorkerHeartbeat {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "worker_id", nullable = false)
+    @JoinColumn(name = "worker_id", nullable = false, unique = true)
     private Worker worker;
 
     @Column(name = "last_ping", nullable = false)
